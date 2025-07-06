@@ -164,6 +164,44 @@
       justify-content: space-between;
       padding: 0.25rem 0;
     }
+
+    /* Mobile Menu specific styles */
+    #mobile-menu-overlay {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 150; /* Above quick add modal */
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    #mobile-menu-overlay.active {
+      display: flex;
+      opacity: 1;
+      visibility: visible;
+    }
+    .mobile-menu-content {
+      background-color: white;
+      width: 80%;
+      max-width: 300px;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      position: relative;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    #mobile-menu-overlay.active .mobile-menu-content {
+      transform: translateY(0);
+      opacity: 1;
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -200,7 +238,6 @@
   </header>
 
   <main class="max-w-5xl mx-auto px-4 py-6">
-    <!-- Home Tab -->
     <section id="tab-home" class="tab-content active">
       <h2 class="text-3xl font-extrabold text-gray-900 mb-6">
         <i class="fas fa-tachometer-alt text-blue-600 mr-2"></i>Dashboard
@@ -226,18 +263,17 @@
             </p>
           </div>
           <div class="mt-6 border-t pt-4">
-            <h4 class="text-xl font-semibold text-gray-700 mb-3">Ideas Summary</h4>
+            <h4 class="xl font-semibold text-gray-700 mb-3">Ideas Summary</h4>
             <div id="ideas-summary"></div>
           </div>
           <div class="mt-6 border-t pt-4">
-            <h4 class="text-xl font-semibold text-gray-700 mb-3">Completed Items</h4>
+            <h4 class="xl font-semibold text-gray-700 mb-3">Completed Items</h4>
             <div id="completed-summary"></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Idea Generation Tab -->
     <section id="tab-ideas" class="tab-content">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-3xl font-extrabold text-gray-900">
@@ -272,7 +308,6 @@
       </div>
     </section>
 
-    <!-- Game Plans Tab -->
     <section id="tab-gameplans" class="tab-content">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-3xl font-extrabold text-gray-900">
@@ -366,7 +401,6 @@
       </div>
     </section>
 
-    <!-- Export & Share Tab -->
     <section id="tab-export" class="tab-content">
       <h2 class="text-3xl font-extrabold text-gray-900 mb-6">
         <i class="fas fa-file-export text-indigo-600 mr-2"></i>Export & Share
@@ -382,12 +416,10 @@
     </section>
   </main>
 
-  <!-- Quick Add Button -->
   <button id="quick-add-btn">
     <i class="fas fa-plus fa-lg"></i>
   </button>
 
-  <!-- Quick Add Modal -->
   <div id="quick-add-modal">
     <div class="modal-content">
       <button class="close-btn" id="close-modal">&times;</button>
@@ -403,7 +435,27 @@
     </div>
   </div>
 
-  <!-- Notification Toast -->
+  <div id="mobile-menu-overlay">
+    <div class="mobile-menu-content">
+      <button class="close-btn" id="close-mobile-menu">&times;</button>
+      <h2 class="text-2xl font-bold mb-6 text-gray-800">Menu</h2>
+      <div class="flex flex-col space-y-4 font-semibold text-gray-700">
+        <button class="nav-btn text-left py-2 px-4 rounded-lg hover:bg-gray-100" data-tab="tab-home">
+          <i class="fas fa-home mr-2"></i> Home
+        </button>
+        <button class="nav-btn text-left py-2 px-4 rounded-lg hover:bg-gray-100" data-tab="tab-ideas">
+          <i class="fas fa-lightbulb mr-2"></i> Idea Generation
+        </button>
+        <button class="nav-btn text-left py-2 px-4 rounded-lg hover:bg-gray-100" data-tab="tab-gameplans">
+          <i class="fas fa-chess mr-2"></i> Game Plans
+        </button>
+        <button class="nav-btn text-left py-2 px-4 rounded-lg hover:bg-gray-100" data-tab="tab-export">
+          <i class="fas fa-file-export mr-2"></i> Export & Share
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="notification-toast"></div>
 
   <script>
@@ -479,6 +531,33 @@
         }
       });
       
+      // Mobile Menu functionality (NEW)
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+      const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
+
+      mobileMenuBtn.addEventListener('click', function() {
+        mobileMenuOverlay.classList.add('active');
+      });
+
+      closeMobileMenuBtn.addEventListener('click', function() {
+        mobileMenuOverlay.classList.remove('active');
+      });
+
+      // Close mobile menu when a navigation item is clicked
+      document.querySelectorAll('#mobile-menu-overlay .nav-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          mobileMenuOverlay.classList.remove('active');
+        });
+      });
+      
+      // Close mobile menu when clicking outside
+      mobileMenuOverlay.addEventListener('click', function(e) {
+        if (e.target === mobileMenuOverlay) {
+          mobileMenuOverlay.classList.remove('active');
+        }
+      });
+
       // Show notification
       function showNotification(message) {
         const toast = document.getElementById('notification-toast');
@@ -1061,18 +1140,18 @@
         const ideasSummary = document.getElementById('ideas-summary');
         const completedSummary = document.getElementById('completed-summary');
         
-        // Upcoming Actions (show actions due in next 7 days)
+        // Upcoming Actions (show all incomplete actions with a future/current date) - UPDATED LOGIC
         const today = new Date();
-        const nextWeek = new Date();
-        nextWeek.setDate(today.getDate() + 7);
-        
+        today.setHours(0, 0, 0, 0); // Normalize today to start of day
+
         const upcoming = [];
         gameplans.forEach(gameplan => {
           if (gameplan.actions) {
             gameplan.actions.forEach(action => {
               if (action.date && !action.completed) {
                 const actionDate = new Date(action.date);
-                if (actionDate >= today && actionDate <= nextWeek) {
+                actionDate.setHours(0, 0, 0, 0); // Normalize action date to start of day
+                if (actionDate >= today) { // Only check if date is today or in the future
                   upcoming.push({
                     title: gameplan.title,
                     action: action.text,
