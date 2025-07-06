@@ -255,7 +255,7 @@
         </div>
         <div class="bg-white p-6 rounded-2xl shadow-md">
           <h3 class="text-2xl font-semibold text-green-700 mb-4">
-            <i class="fas fa-chess mr-2"></i>Game Plans Summary
+            <i class="fas fa-chess mr-2"></i>Recent Game Plans
           </h3>
           <div id="gameplans-summary">
             <p class="text-gray-500">
@@ -355,7 +355,7 @@
           </label>
           <div id="resources-container" class="mb-2 space-y-1"></div>
           <div class="flex space-x-2">
-            <input type="text" id="new-resource" class="flex-1 p-2 border rounded" placeholder="Add a resource">
+            <input type="text" id="new-resource" class="flex-1 p-2 border rounded" placeholder="Add a resource (hit plus)">
             <select id="resource-status" class="p-2 border rounded">
               <option value="has">I have</option>
               <option value="needs">I need</option>
@@ -371,7 +371,7 @@
           </label>
           <div id="share-contacts-container" class="mb-2 space-y-1"></div>
           <div class="flex">
-            <input type="text" id="new-share-contact" class="flex-1 p-2 border rounded" placeholder="Add person or team">
+            <input type="text" id="new-share-contact" class="flex-1 p-2 border rounded" placeholder="Add person or team (hit plus)">
             <button type="button" id="add-share-contact-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded ml-2">
               <i class="fas fa-plus"></i>
             </button>
@@ -384,7 +384,7 @@
           <div id="action-items-container" class="space-y-2 mb-2"></div>
           <div class="flex space-x-2">
             <input type="text" id="new-action-item" class="flex-1 p-2 border rounded" placeholder="Add an action step">
-            <input type="date" id="new-action-date" class="p-2 border rounded">
+            <input type="date" id="new-action-date" class="p-2 border rounded" placeholder="Date">
             <button type="button" id="add-action-btn" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">
               <i class="fas fa-plus"></i>
             </button>
@@ -1266,7 +1266,10 @@
         // Game Plans Summary
         if (gameplans.length > 0) {
           gameplansSummary.innerHTML = '';
-          gameplans.slice(0, 3).forEach(gameplan => {
+          // Sort gameplans by creation date in descending order to show most recent first
+          const recentGamePlans = [...gameplans].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+          recentGamePlans.slice(0, 3).forEach(gameplan => { // Slice after sorting
             const completedActions = gameplan.actions ? gameplan.actions.filter(a => a.completed).length : 0;
             const totalActions = gameplan.actions ? gameplan.actions.length : 0;
             const progress = totalActions > 0 ? Math.round((completedActions / totalActions) * 100) : 0;
@@ -1294,6 +1297,12 @@
               editGamePlan(gameplan.id);
             });
           });
+        } else {
+          gameplansSummary.innerHTML = `
+            <p class="text-gray-500">
+              <i class="fas fa-info-circle mr-2"></i> No game plans available.
+            </p>
+          `;
         }
         
         // Ideas Summary
@@ -1338,7 +1347,7 @@
         } else {
           completedSummary.innerHTML = `
             <p class="text-gray-500">
-              <i class="fas fa-info-circle mr-2"></i> No completed items.<
+              <i class="fas fa-info-circle mr-2"></i> No completed items.\
             </p>
           `;
         }
